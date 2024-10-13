@@ -145,7 +145,7 @@ const Gallery = () => {
     };
 
     fetchImages();
-  }, []); // Only run once on mount
+  });
 
   return (
     <>
