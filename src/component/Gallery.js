@@ -79,18 +79,15 @@ const Gallery = () => {
 
   const prompts = [
     // Fashion Design Prompts
+    "Elegant floral curtains with a soft pastel color palette",
+    "Modern geometric patterned curtains in vibrant shades",
+    "Bold animal print cushion covers with plush textures",
+    "Vintage-style cushion covers with intricate lace designs",
+    "Rustic plaid dining table cloth in warm earth tones",
+    "Chic silk table cloth with shimmering metallic accents",
     "Trendy summer shorts and t-shirt for kids",
     "A colorful backpack for school",
     "An elegant party dress for a girl aged 10",
-    // Curtain Design Prompts
-    "Elegant floral curtains with a soft pastel color palette",
-    "Modern geometric patterned curtains in vibrant shades",
-    // Cushion Cover Design Prompts
-    "Bold animal print cushion covers with plush textures",
-    "Vintage-style cushion covers with intricate lace designs",
-    // Dining Table Cloth Design Prompts
-    "Rustic plaid dining table cloth in warm earth tones",
-    "Chic silk table cloth with shimmering metallic accents",
   ];
 
   const query = async (data) => {
@@ -123,29 +120,37 @@ const Gallery = () => {
 
   useEffect(() => {
     const fetchImages = async () => {
-      const newImages = [];
+      const storedImages = JSON.parse(localStorage.getItem("galleryImages"));
 
-      for (let i = 0; i < prompts.length; i++) {
-        const prompt = prompts[i];
-        setLoadingCount((prev) => prev + 1); // Increment loading counter
+      if (storedImages && storedImages.length > 0) {
+        // If images are stored in localStorage, use them
+        setImages(storedImages);
+      } else {
+        const newImages = [];
 
-        try {
-          const imageUrl = await query(prompt); // Fetch image for each prompt
-          if (imageUrl) {
-            newImages.push({ url: imageUrl, title: prompt }); // Add image and title to the newImages array
+        for (let i = 0; i < prompts.length; i++) {
+          const prompt = prompts[i];
+          setLoadingCount((prev) => prev + 1); // Increment loading counter
+
+          try {
+            const imageUrl = await query(prompt); // Fetch image for each prompt
+            if (imageUrl) {
+              newImages.push({ url: imageUrl, title: prompt, loaded: false }); // Add image and title to the newImages array
+            }
+          } catch (error) {
+            console.error("Error fetching image for prompt:", prompt);
+          } finally {
+            setLoadingCount((prev) => prev - 1); // Decrement loading counter
           }
-        } catch (error) {
-          console.error("Error fetching image for prompt:", prompt);
-        } finally {
-          setLoadingCount((prev) => prev - 1); // Decrement loading counter
         }
-      }
 
-      setImages((prev) => [...prev, ...newImages]); // Update state only once with all new images
+        setImages(newImages);
+        localStorage.setItem("galleryImages", JSON.stringify(newImages)); // Save fetched images to localStorage
+      }
     };
 
     fetchImages();
-  });
+  }, []); // Add the empty dependency array to prevent infinite loop
 
   return (
     <>
@@ -171,8 +176,8 @@ const Gallery = () => {
         )}
 
         <Footer>
-          &copy; {new Date().getFullYear()} AI for Sustainable Fashion. All
-          rights reserved.
+          &copy; {new Date().getFullYear()} RoboStyle Studio. All rights
+          reserved.
         </Footer>
       </GalleryContainer>
     </>

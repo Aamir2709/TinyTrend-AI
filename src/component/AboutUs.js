@@ -90,7 +90,7 @@ const AboutUs = () => {
         </Section>
 
         <Footer>
-          &copy; {new Date().getFullYear()} AI for Sustainable Fashion. All
+          &copy; {new Date().getFullYear()} RoboStyle Studio. All
           rights reserved.
         </Footer>
       </AboutContainer>
