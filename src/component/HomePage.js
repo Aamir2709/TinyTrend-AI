@@ -2,19 +2,20 @@ import React from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import sampleImage from "../sample1.png";
+import logo from "../logo.webp";
+import Navbar from "./Navbar";
 
 // Styled components
 const HomeContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start; /* Changed to flex-start for proper alignment */
   min-height: 100vh;
   background: linear-gradient(135deg, #1c1c1c, #2e2e2e);
   color: white;
   text-align: center;
-  padding: 40px 20px;
+  padding: 80px 20px; /* Increased top padding for navbar */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 `;
 
@@ -31,8 +32,8 @@ const Description = styled.p`
 `;
 
 const CentralImage = styled.img`
-  width: 80%;
-  max-width: 600px;
+  width: 50%;
+  max-width: 400px;
   border-radius: 15px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   margin-bottom: 2rem;
@@ -77,7 +78,7 @@ const FeatureSection = styled.div`
 
 const FeatureTitle = styled.h2`
   font-size: 2rem;
-  margin-bottom: 1rem;
+  margin: 2rem 0 1rem; /* Added margin for spacing */
 `;
 
 const Footer = styled.footer`
@@ -96,7 +97,7 @@ const TestimonialsSection = styled.div`
 
 const TestimonialTitle = styled.h2`
   font-size: 2rem;
-  margin-bottom: 1rem;
+  margin: 2rem 0 1rem; /* Added margin for spacing */
 `;
 
 // Main Component
@@ -104,62 +105,78 @@ const HomePage = () => {
   const navigate = useNavigate();
 
   return (
-    <HomeContainer>
-      <Title>Welcome to AI for Sustainable Fashion for Children</Title>
-
-      <CentralImage src={sampleImage} alt="Highlight" />
-
-      <Description>
-        This application leverages AI to create unique and sustainable fashion
-        designs for children. With just a few clicks, you can generate
-        personalized outfits based on gender and age group.
-      </Description>
-
-      <TryButton
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => navigate("/text-to-image")}
-      >
-        Try it Out
-      </TryButton>
-
-      {/* Feature Highlights Section */}
-      <FeatureTitle>Key Features</FeatureTitle>
-      <FeatureSection>
-        <FeatureBox>
-          <h3>Generate Outfits</h3>
-          <p>💡 Generate outfits based on user inputs.</p>
-        </FeatureBox>
-        <FeatureBox>
-          <h3>Unique Designs</h3>
-          <p>🎨 AI-generated unique designs.</p>
-        </FeatureBox>
-        <FeatureBox>
-          <h3>Customizable</h3>
-          <p>👗 Gender and age group customization.</p>
-        </FeatureBox>
-      </FeatureSection>
-
-      {/* Testimonials Section */}
-      <TestimonialTitle>User Testimonials</TestimonialTitle>
-      <TestimonialsSection>
-        <TestimonialBox>
-          <p>"This app is amazing! My kids love the designs!"</p>
-        </TestimonialBox>
-        <TestimonialBox>
-          <p>"Finally, a way to find unique outfits for my children!"</p>
-        </TestimonialBox>
-        <TestimonialBox>
-          <p>"Sustainable fashion made easy!"</p>
-        </TestimonialBox>
-      </TestimonialsSection>
-
-      {/* Footer Section */}
-      <Footer>
-        &copy; {new Date().getFullYear()} AI for Sustainable Fashion. All rights
-        reserved.
-      </Footer>
-    </HomeContainer>
+    <>
+      <Navbar />
+      <HomeContainer>
+        <Title>Welcome to RoboStyle Studio!</Title> {/* Added Title */}
+        <CentralImage src={logo} alt="Highlight" />
+        <Description>
+          Unleash your creativity! Our AI-driven website effortlessly turns your
+          raw materials into exquisite designer items—curtains, cushions,
+          tablecloths, and everything else you can envision—in mere moments.
+        </Description>
+        <TryButton
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => navigate("/text-to-image")}
+        >
+          Try it Out
+        </TryButton>
+        {/* Feature Highlights Section */}
+        <FeatureTitle>Key Features</FeatureTitle>
+        <FeatureSection>
+          <FeatureBox>
+            <h3>Fabric Transformation</h3>
+            <p>
+              💡 Turn raw materials into stunning designer pieces effortlessly.
+            </p>
+          </FeatureBox>
+          <FeatureBox>
+            <h3>Instant Design Generation</h3>
+            <p>🎨 Generate unique designs in real-time.</p>
+          </FeatureBox>
+          <FeatureBox>
+            <h3>User-Friendly Interface</h3>
+            <p>👗 Simple and intuitive design process.</p>
+          </FeatureBox>
+          <FeatureBox>
+            <h3>Customizable Options</h3>
+            <p>✨ Tailor designs to your preferences.</p>
+          </FeatureBox>
+          <FeatureBox>
+            <h3>Sustainability Focused</h3>
+            <p>🌱 Promote sustainable fashion practices.</p>
+          </FeatureBox>
+        </FeatureSection>
+        {/* Testimonials Section */}
+        <TestimonialTitle>User Testimonials</TestimonialTitle>
+        <TestimonialsSection>
+          <TestimonialBox>
+            <p>
+              "I never thought I could turn my old fabric into beautiful
+              cushions! This tool makes it so easy!"
+            </p>
+          </TestimonialBox>
+          <TestimonialBox>
+            <p>
+              "I love how quickly I can create custom curtains for my home. The
+              designs are stunning!"
+            </p>
+          </TestimonialBox>
+          <TestimonialBox>
+            <p>
+              "Transforming raw material into unique tablecloths has never been
+              easier. I'm obsessed with the results!"
+            </p>
+          </TestimonialBox>
+        </TestimonialsSection>
+        {/* Footer Section */}
+        <Footer>
+          &copy; {new Date().getFullYear()} RoboStyle Studio. All
+          rights reserved.
+        </Footer>
+      </HomeContainer>
+    </>
   );
 };
 

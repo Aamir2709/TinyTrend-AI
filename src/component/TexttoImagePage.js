@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
+import Navbar from "./Navbar";
 
 // Styled components
 const Container = styled.div`
@@ -32,38 +33,30 @@ const Input = styled.input`
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 `;
 
-const Select = styled.select`
-  width: 60%;
-  padding: 1rem;
+const BubbleOptions = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+`;
+
+const BubbleButton = styled(motion.button)`
+  padding: 1rem 2rem;
+  background-color: #ff6b6b;
   border: none;
   border-radius: 50px;
-  font-size: 1.2rem;
-  outline: none;
-  margin-bottom: 1rem;
-  background: rgba(255, 255, 255, 0.1); // Transparent dark background
+  font-size: 1rem;
   color: white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  appearance: absolute; // Hide default dropdown arrow
-  position: relative;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  outline: none;
 
-  &::-ms-expand {
-    display: none; // Hide default dropdown arrow in IE
+  &:hover {
+    background-color: #ff4d4d;
   }
 
-  // Custom dropdown arrow
-  &::after {
-    content: '▼';
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: white;
-    pointer-events: none;
-  }
-
-  option {
-    background: rgba(255, 255, 255, 0.1); // Same background for options
-    color: black; // White text for options
+  &.active {
+    background-color: #ff3030;
+    font-weight: bold;
   }
 `;
 
@@ -93,48 +86,92 @@ const GeneratedImage = styled(motion.img)`
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
 `;
 
-const LoadingSpinner = styled(motion.div)`
-  border: 8px solid rgba(255, 255, 255, 0.2);
-  border-left-color: #ff6b6b; /* Color of the spinner */
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 0.8s linear infinite;
+const MagicWandIcon = styled(motion.div)`
+  width: 60px;
+  height: 60px;
+  position: relative;
+  margin-bottom: 1.5rem;
 
-  @keyframes spin {
+  &::before {
+    content: "✨";
+    position: absolute;
+    font-size: 3rem;
+    animation: sparkle 1s ease-in-out infinite alternate;
+    top: -20px;
+    left: 20px;
+  }
+
+  @keyframes sparkle {
     0% {
-      transform: rotate(0deg);
-    }
-    25% {
-      transform: rotate(90deg);
-      border-left-color: #ff6b6b;
-    }
-    50% {
-      transform: rotate(180deg);
-      border-left-color: #ff6b6b;
-    }
-    75% {
-      transform: rotate(270deg);
-      border-left-color: #ff6b6b;
+      opacity: 0.6;
+      transform: translateX(0) rotate(0deg);
     }
     100% {
-      transform: rotate(360deg);
+      opacity: 1;
+      transform: translateX(10px) rotate(15deg);
     }
   }
 `;
 
+const Tagline = styled(motion.div)`
+  font-size: 1.5rem;
+  color: #ff6b6b;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 1rem;
+`;
+
+const MagicLoadingSpinner = () => {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }}
+      style={{ textAlign: "center" }}
+    >
+      <MagicWandIcon
+        initial={{ scale: 0.8, rotate: 0 }}
+        animate={{ scale: 1.2, rotate: 360 }}
+        transition={{
+          duration: 1.5,
+          repeat: Infinity,
+          repeatType: "loop",
+          ease: "easeInOut",
+        }}
+      />
+      <Tagline
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2 }}
+      >
+        Your imagination is coming into existence....
+      </Tagline>
+    </motion.div>
+  );
+};
+
+const options = [
+  {
+    display: "Dining Table Cloth",
+    prompt: "dining table",
+  },
+  { display: "Cushion Cover", prompt: "2 cushions on a sofa" },
+  { display: "Curtain", prompt: "Curtains on the wall" },
+  { display: "Dress", prompt: "Dress" },
+  { display: "Bedsheet", prompt: "king size bed" },
+];
+
 // Main Component
 const TextToImagePage = () => {
-  const [image, setImage] = useState([]);
+  const [images, setImages] = useState({});
   const [text, setText] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
-  const [gender, setGender] = useState("boy");
-  const [ageGroup, setAgeGroup] = useState("0-5");
-  const token = "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";
+  const [loading, setLoading] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const token = "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"; // Example token
 
   // Function to query the image generation API
   const query = async (data) => {
-    console.log("Got the following params: ", data);
     const response = await fetch(
       "https://api-inference.huggingface.co/models/ZB-Tech/Text-to-Image",
       {
@@ -147,67 +184,100 @@ const TextToImagePage = () => {
       }
     );
     const result = await response.blob();
-    console.log("Got the following result: ", result);
     return URL.createObjectURL(result); // Convert blob to URL
   };
 
   const handleGenerateImage = async () => {
-    setLoading(true); // Set loading to true
+    setLoading(true);
     try {
-      const prompt = `Generate a sustainable fashion outfit for a ${ageGroup} ${gender}. Description: ${text}`;
-      const imageUrl = await query({ inputs: prompt });
-      console.log("Image URL: ", imageUrl);
-      setImage([imageUrl]); // Set images to an array containing the single image
+      const allImages = {};
+
+      // Generate images for each option concurrently
+      await Promise.all(
+        options.map(async (item) => {
+          allImages[item.display] = [];
+
+          // Generate 3 images in parallel for each option
+          const imagePromises = Array(3)
+            .fill(null)
+            .map(async () => {
+              const prompt = `Generate ${item.prompt} with the following material design: ${text}`;
+              return await query({ inputs: prompt });
+            });
+
+          const generatedImages = await Promise.all(imagePromises);
+          allImages[item.display] = generatedImages; // Store the generated images
+        })
+      );
+
+      setImages(allImages);
     } catch (error) {
       console.error("Error generating images:", error);
     } finally {
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
   };
 
+  const handleItemSelect = (item) => {
+    setSelectedItem(item);
+  };
+
   return (
-    <Container>
-      <Title>AI for Sustainable Fashion for Children</Title>
-      <Input
-        placeholder="Enter additional description..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      />
-      
-      <Select value={gender} onChange={(e) => setGender(e.target.value)}>
-        <option value="boy">Boy</option>
-        <option value="girl">Girl</option>
-      </Select>
+    <>
+      <Navbar></Navbar>
+      <Container>
+        <Title>AI Design Generator</Title>
+        <Input
+          placeholder="Enter the description of the material you have"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
 
-      <Select value={ageGroup} onChange={(e) => setAgeGroup(e.target.value)}>
-        <option value="0-5">0-5</option>
-        <option value="5-10">5-10</option>
-        <option value="10-15">10-15</option>
-        <option value="15-20">15-20</option>
-      </Select>
+        <GenerateButton
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={handleGenerateImage}
+        >
+          Generate Designs
+        </GenerateButton>
 
-      <GenerateButton
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={handleGenerateImage}
-      >
-        Generate
-      </GenerateButton>
+        {loading && <MagicLoadingSpinner />}
 
-      {loading && <LoadingSpinner />}
+        {Object.keys(images).length > 0 && !loading && (
+          <>
+            <BubbleOptions>
+              {options.map((item) => (
+                <BubbleButton
+                  key={item.display}
+                  whileHover={{ scale: 1.1 }}
+                  onClick={() => handleItemSelect(item)}
+                  className={selectedItem === item ? "active" : ""}
+                >
+                  {item.display}
+                </BubbleButton>
+              ))}
+            </BubbleOptions>
 
-      {image.length > 0 && !loading && (
-        <ImageGrid>
-          <GeneratedImage
-            src={image}
-            alt={`Generated image`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5 }}
-          />
-        </ImageGrid>
-      )}
-    </Container>
+            {selectedItem && (
+              <ImageGrid>
+                {images[selectedItem.display]?.map((imgSrc, index) => (
+                  <GeneratedImage
+                    key={index}
+                    src={imgSrc}
+                    alt={`Generated image for ${selectedItem.display} ${
+                      index + 1
+                    }`}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.3 }}
+                  />
+                ))}
+              </ImageGrid>
+            )}
+          </>
+        )}
+      </Container>
+    </>
   );
 };
 
