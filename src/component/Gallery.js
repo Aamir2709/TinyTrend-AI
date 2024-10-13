@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import Navbar from "./Navbar";
 
@@ -77,18 +77,21 @@ const Gallery = () => {
   const [loadingCount, setLoadingCount] = useState(0); // Track loading images
   const token = "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"; // Replace with your token
 
-  const prompts = [
-    // Fashion Design Prompts
-    "Elegant floral curtains with a soft pastel color palette",
-    "Modern geometric patterned curtains in vibrant shades",
-    "Bold animal print cushion covers with plush textures",
-    "Vintage-style cushion covers with intricate lace designs",
-    "Rustic plaid dining table cloth in warm earth tones",
-    "Chic silk table cloth with shimmering metallic accents",
-    "Trendy summer shorts and t-shirt for kids",
-    "A colorful backpack for school",
-    "An elegant party dress for a girl aged 10",
-  ];
+  // Memoize the prompts array so it doesn't change between renders
+  const prompts = useMemo(
+    () => [
+      "Elegant floral curtains with a soft pastel color palette",
+      "Modern geometric patterned curtains in vibrant shades",
+      "Bold animal print cushion covers with plush textures",
+      "Vintage-style cushion covers with intricate lace designs",
+      "Red embroidery Dress",
+      "Chic silk table cloth with shimmering metallic accents",
+      "Trendy summer shorts and t-shirt for kids",
+      "A colorful backpack for school",
+      "An elegant party dress for a girl aged 10",
+    ],
+    []
+  );
 
   const query = async (data) => {
     try {
@@ -112,30 +115,64 @@ const Gallery = () => {
       }
 
       const result = await response.blob();
-      return URL.createObjectURL(result); // Convert blob to URL
+      return result; // Return the blob itself
     } catch (error) {
       console.error("Error during image query:", error);
     }
   };
 
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const base64ToBlob = async (base64) => {
+    const response = await fetch(base64);
+    return response.blob();
+  };
+
   useEffect(() => {
     const fetchImages = async () => {
-      const storedImages = JSON.parse(localStorage.getItem("galleryImages"));
+      // Retrieve images from localStorage (if available)
+      const storedImages = JSON.parse(localStorage.getItem("galleryImages")) || [];
 
-      if (storedImages && storedImages.length > 0) {
-        // If images are stored in localStorage, use them
-        setImages(storedImages);
+      if (storedImages.length > 0) {
+        // If images exist in localStorage, convert base64 back to object URLs
+        const imageUrls = await Promise.all(
+          storedImages.map(async (storedImage) => {
+            const blob = await base64ToBlob(storedImage.base64); // Convert base64 back to blob
+            return {
+              url: URL.createObjectURL(blob), // Convert blob back to URL
+              title: storedImage.title,
+            };
+          })
+        );
+        setImages(imageUrls); // Set the state with the image URLs
       } else {
+        // Fetch new images from API if no stored images
         const newImages = [];
+        const updatedStoredImages = [...storedImages]; // Start with any existing stored images
 
         for (let i = 0; i < prompts.length; i++) {
           const prompt = prompts[i];
           setLoadingCount((prev) => prev + 1); // Increment loading counter
 
           try {
-            const imageUrl = await query(prompt); // Fetch image for each prompt
-            if (imageUrl) {
-              newImages.push({ url: imageUrl, title: prompt, loaded: false }); // Add image and title to the newImages array
+            const imageBlob = await query(prompt); // Fetch image as blob
+            if (imageBlob) {
+              const imageUrl = URL.createObjectURL(imageBlob);
+              const base64 = await blobToBase64(imageBlob); // Convert blob to base64
+
+              // Add new image to the arrays
+              newImages.push({ url: imageUrl, title: prompt });
+              updatedStoredImages.push({ base64, title: prompt });
+
+              // Save the updated image list to localStorage
+              localStorage.setItem("galleryImages", JSON.stringify(updatedStoredImages));
             }
           } catch (error) {
             console.error("Error fetching image for prompt:", prompt);
@@ -145,12 +182,11 @@ const Gallery = () => {
         }
 
         setImages(newImages);
-        localStorage.setItem("galleryImages", JSON.stringify(newImages)); // Save fetched images to localStorage
       }
     };
 
     fetchImages();
-  }, []); // Add the empty dependency array to prevent infinite loop
+  }, [prompts]); // Depend on prompts to avoid re-triggering unnecessarily
 
   return (
     <>
