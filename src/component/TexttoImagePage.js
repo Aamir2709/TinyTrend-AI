@@ -9,32 +9,55 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh; /* Change from height to min-height */
   background: linear-gradient(135deg, #1c1c1c, #2e2e2e);
   color: white;
   text-align: center;
+  padding: 2rem;
+  overflow-y: auto; /* Enable vertical scrolling */
 `;
+
 
 const Title = styled.h1`
   font-size: 4rem;
   font-weight: bold;
   margin-bottom: 1.5rem;
+
+  @media (max-width: 768px) {
+    fonst-size: 2rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const Input = styled.input`
-  width: 60%;
+  width: 90%; /* Increase width for better readability on mobile */
+  max-width: 500px;
   padding: 1rem;
   border: none;
   border-radius: 50px;
-  font-size: 1.2rem;
+  font-size: 1rem; /* Adjust font size for mobile */
   outline: none;
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem; /* Smaller font for better fit on mobile */
+    padding: 0.8rem;   /* Adjust padding to balance */
+  }
+`;
+
+
+const ErrorMessage = styled.div`
+  color: red;
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
 `;
 
 const BubbleOptions = styled.div`
   display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1rem;
   margin-bottom: 2rem;
 `;
@@ -77,13 +100,27 @@ const ImageGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
   padding: 2rem;
+  width: 100%;
+  justify-items: center;
+  margin: 0 auto; /* Center the grid horizontally */
+
+  @media (min-width: 768px) {
+    max-width: 800px; /* Set a max width for larger screens */
+  }
+
+  @media (max-width: 768px) {
+    margin-left: 0; /* No margin for smaller screens */
+    padding: 0.5rem; /* Optional: reduce padding for smaller screens */
+  }
 `;
+
 
 const GeneratedImage = styled(motion.img)`
   width: 100%;
   height: auto;
   border-radius: 10px;
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
 `;
 
 const MagicWandIcon = styled(motion.div)`
@@ -152,14 +189,12 @@ const MagicLoadingSpinner = () => {
 };
 
 const options = [
-  {
-    display: "Dining Table Cloth",
-    prompt: "dining table",
-  },
+  { display: "Table Mat", prompt: "table mat" },
   { display: "Cushion Cover", prompt: "2 cushions on a sofa" },
   { display: "Curtain", prompt: "Curtains on the wall" },
   { display: "Dress", prompt: "Dress" },
   { display: "Bedsheet", prompt: "king size bed" },
+  { display: "Table Runner", prompt: "table runner" },
 ];
 
 // Main Component
@@ -168,7 +203,10 @@ const TextToImagePage = () => {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const token = "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"; // Example token
+  const [showOptions, setShowOptions] = useState(false); // To control when options appear
+  const [error, setError] = useState("");
+
+  const token = "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";
 
   // Function to query the image generation API
   const query = async (data) => {
@@ -188,7 +226,15 @@ const TextToImagePage = () => {
   };
 
   const handleGenerateImage = async () => {
+    if (!text.trim()) {
+      setError("Please enter a description before hitting enter.");
+      return;
+    }
+
+    setError("");
     setLoading(true);
+    setShowOptions(true); // Show options after entering prompt
+
     try {
       const allImages = {};
 
@@ -224,14 +270,17 @@ const TextToImagePage = () => {
 
   return (
     <>
-      <Navbar></Navbar>
+      <Navbar />
       <Container>
         <Title>AI Design Generator</Title>
+
         <Input
           placeholder="Enter the description of the material you have"
           value={text}
           onChange={(e) => setText(e.target.value)}
         />
+
+        {error && <ErrorMessage>{error}</ErrorMessage>}
 
         <GenerateButton
           whileHover={{ scale: 1.1 }}
@@ -243,7 +292,7 @@ const TextToImagePage = () => {
 
         {loading && <MagicLoadingSpinner />}
 
-        {Object.keys(images).length > 0 && !loading && (
+        {showOptions && !loading && (
           <>
             <BubbleOptions>
               {options.map((item) => (
