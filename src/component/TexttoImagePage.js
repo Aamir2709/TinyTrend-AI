@@ -17,7 +17,6 @@ const Container = styled.div`
   overflow-y: auto; /* Enable vertical scrolling */
 `;
 
-
 const Title = styled.h1`
   font-size: 4rem;
   font-weight: bold;
@@ -40,13 +39,12 @@ const Input = styled.input`
   text-align: center;
   margin-bottom: 1.5rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  
+
   @media (max-width: 768px) {
     font-size: 0.9rem; /* Smaller font for better fit on mobile */
-    padding: 0.8rem;   /* Adjust padding to balance */
+    padding: 0.8rem; /* Adjust padding to balance */
   }
 `;
-
 
 const ErrorMessage = styled.div`
   color: red;
@@ -113,7 +111,6 @@ const ImageGrid = styled.div`
     padding: 0.5rem; /* Optional: reduce padding for smaller screens */
   }
 `;
-
 
 const GeneratedImage = styled(motion.img)`
   width: 100%;
@@ -309,18 +306,20 @@ const TextToImagePage = () => {
 
             {selectedItem && (
               <ImageGrid>
-                {images[selectedItem.display]?.map((imgSrc, index) => (
-                  <GeneratedImage
-                    key={index}
-                    src={imgSrc}
-                    alt={`Generated image for ${selectedItem.display} ${
-                      index + 1
-                    }`}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.3 }}
-                  />
-                ))}
+                {images[selectedItem.display]
+                  ?.filter((imgSrc) => imgSrc) // Filter out null or undefined images
+                  .map((imgSrc, index) => (
+                    <GeneratedImage
+                      key={index}
+                      src={imgSrc}
+                      alt={`Generated image for ${selectedItem.display} ${
+                        index + 1
+                      }`}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.3 }}
+                    />
+                  ))}
               </ImageGrid>
             )}
           </>

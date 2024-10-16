@@ -63,7 +63,7 @@ const Hamburger = styled(motion.div)`
 
 const Line = styled.div`
   height: 4px;
-  width: 80%;
+  width: 60%;
 
   background: #ff6b6b;
   border-radius: 5px;
