@@ -138,7 +138,8 @@ const Gallery = () => {
   useEffect(() => {
     const fetchImages = async () => {
       // Retrieve images from localStorage (if available)
-      const storedImages = JSON.parse(localStorage.getItem("galleryImages")) || [];
+      const storedImages =
+        JSON.parse(localStorage.getItem("galleryImages")) || [];
 
       if (storedImages.length > 0) {
         // If images exist in localStorage, convert base64 back to object URLs
@@ -172,7 +173,10 @@ const Gallery = () => {
               updatedStoredImages.push({ base64, title: prompt });
 
               // Save the updated image list to localStorage
-              localStorage.setItem("galleryImages", JSON.stringify(updatedStoredImages));
+              localStorage.setItem(
+                "galleryImages",
+                JSON.stringify(updatedStoredImages)
+              );
             }
           } catch (error) {
             console.error("Error fetching image for prompt:", prompt);
@@ -216,8 +220,8 @@ const Gallery = () => {
           ))}
         </ImageGallery>
 
-        {loadingCount > 0 && ( // Show loading message if images are still being fetched
-          <LoadingScreen>Loading more images...</LoadingScreen>
+        {images.length === 0 && loadingCount > 0 && (
+          <LoadingScreen>Loading images...</LoadingScreen>
         )}
 
         <Footer>
