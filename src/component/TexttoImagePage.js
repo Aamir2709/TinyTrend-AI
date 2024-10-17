@@ -267,15 +267,6 @@ const TextToImagePage = () => {
 
   return (
     <>
-      <script
-        async
-        src="https://www.googletagmanager.com/gtag/js?id=G-Q0XYCVWZXJ"
-      ></script>
-      <script>
-        window.dataLayer = window.dataLayer || []; function gtag()
-        {dataLayer.push(arguments)}
-        gtag('js', new Date()); gtag('config', 'G-Q0XYCVWZXJ');
-      </script>
       <Navbar />
       <Container>
         <Title>AI Design Generator</Title>
