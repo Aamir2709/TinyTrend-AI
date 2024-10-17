@@ -58,6 +58,15 @@ const Footer = styled.footer`
 const AboutUs = () => {
   return (
     <>
+      <script
+        async
+        src="https://www.googletagmanager.com/gtag/js?id=G-Q0XYCVWZXJ"
+      ></script>
+      <script>
+        window.dataLayer = window.dataLayer || []; function gtag()
+        {dataLayer.push(arguments)}
+        gtag('js', new Date()); gtag('config', 'G-Q0XYCVWZXJ');
+      </script>
       <Navbar />
       <AboutContainer>
         <Title>About Us</Title>
@@ -90,8 +99,8 @@ const AboutUs = () => {
         </Section>
 
         <Footer>
-          &copy; {new Date().getFullYear()} RoboStyle Studio. All
-          rights reserved.
+          &copy; {new Date().getFullYear()} RoboStyle Studio. All rights
+          reserved.
         </Footer>
       </AboutContainer>
     </>
